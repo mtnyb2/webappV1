@@ -99,8 +99,7 @@ CREATE TABLE Makat (id INT PRIMARY KEY,
 
 CREATE TABLE RepairingItems ( item_id BIGINT PRIMARY KEY,
                                                      makat_id INT, manufacturer_name VARCHAR(255), model VARCHAR(255), case_type CHARACTER(15), processor VARCHAR(255), RAM VARCHAR(255), optical_drive VARCHAR(255), --אולי אפשר בוליאני?
- OS VARCHAR(255), id_technician CHARACTER(10), repairing_item_date TEXT --$$
-
+ OS VARCHAR(255), id_technician CHARACTER(10), repairing_item_date TEXT
 FOREIGN KEY ("id_technician") REFERENCES "Worker" ("id");
 
 
@@ -122,8 +121,7 @@ FOREIGN KEY ("item_id") REFERENCES "OnlineSelling" ("item_id");
 
 
 CREATE TABLE OnlineSelling ( id BIGINT PRIMARY KEY,
-                                               item_id BIGINT, costumer_id CHARACTER(10), sending_id VARCHAR(255), sale_price REAL, sale_timestamp TEXT --$$
-
+                                               item_id BIGINT, costumer_id CHARACTER(10), sending_id VARCHAR(255), sale_price REAL, sale_timestamp TEXT
 FOREIGN KEY ("costumer_id") REFERENCES "Customers" ("id");
 
 
@@ -140,8 +138,7 @@ CREATE TABLE Customers (id CHARACTER(10) PRIMARY KEY,
                                                                                  age SMALLINT);
 
 
-CREATE TABLE CustomService ( ticket_id BIGINT sale_id BIGINT, details TEXT, resolved_by TEXT, worker_id CHARACTER(10), timestamp TEXT--$$
- status CHARACTER(64)
+CREATE TABLE CustomService ( ticket_id BIGINT sale_id BIGINT, details TEXT, resolved_by TEXT, worker_id CHARACTER(10), timestamp TEXT status CHARACTER(64)
 FOREIGN KEY ("worker_id") REFERENCES "Worker" ("id");
 
 );
