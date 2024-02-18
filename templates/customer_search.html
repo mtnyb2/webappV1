@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="he">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customers</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body>
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-md-4 offset-md-4">
+                <h2 dir=rtl>פתיחת פנייה ללקוח</h2>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-8 offset-md-2">
+                <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                        <button class="btn btn-outline-secondary" type="button" id='search-button'>חיפוש</button>
+                    </div>
+                    <input type="text" class="form-control" placeholder="פרטי לקוח" aria-label="" id="search-bar"
+                        aria-describedby="basic-addon1" dir="rtl">
+                </div>
+            </div>
+        </div>
+
+        <div>
+            <ul class="list-group" id="customer-list">
+                <li class=" list-group-item list-group-item-action flex-column align-items-start">
+                    <h5>הלקוח</h5>
+                </li>
+            </ul>
+        </div>
+
+    </div>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script>
+
+        $(document).ready(function () {
+            $("#search-button").click(function () {
+                // Define the parameters
+                var params = {
+                    search: $("#search-bar").val(),
+                };
+
+                // Send the GET request
+                $.get("/customers", params, function (data, status) {
+                    // Handle the response here
+                    if (status === 'success') {
+                        $('#customer-list').children().remove(); // removing old customers
+                        let customers = data;
+                        for (i = 0; i < customers.length; i++) {
+                            $("#customer-list").append('<li class="list-group-item list-group-item-action flex-column align-items-start"><h5> ' + customers[i].name + '</li>');
+                        }
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+
+
+
+
+</html>
