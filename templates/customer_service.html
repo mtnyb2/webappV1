@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="he">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customers</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body>
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-md-4 offset-md-4">
+                <h2 dir=rtl>פניות פתוחות</h2>
+            </div>
+        </div>
+
+        <div id="wrapper">
+            <table class="table">
+                <thead class="thead-dark">
+                    <tr>
+                        <th scope="col">שם לקוח</th>
+                        <th scope="col">תאריך פתחיחת פנייה </th>
+                        <th scope="col"> פרטים</th>
+                        <th scope="col">סטטוס </th>
+                        <th scope="col">סוג פנייה</th>
+                        <th scope="col">סגור פנייה</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                </tbody>
+            </table>
+        </div>
+
+
+        <div class="modal fade" id="complaintModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title" id="myModalLabel" dir="rtl" style="float: right;">פתח פנייה חדשה</h4>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                                aria-hidden="true">&times;</span></button>
+
+
+                    </div>
+                    <div class="modal-body">
+                        <form id="complaintForm">
+                            <input name="customer_id" type="hidden">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="customer_name">שם לקוח</label>
+                                        <input type="string" class="form-control" id="customer-name" disabled>
+                                    </div>
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <label for="customer_address">כתובת</label>
+                                    <input type="string" class="form-control" id="customer-address" disabled>
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <label for="sale_id">מספר הזמנה</label>
+                                    <input type="string" class="form-control" id="customer-order-number" name="sale_id"
+                                        readonly="readonly">
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="form-group col-md-4 md-offset-0">
+                                    <label for="complaint_type">סיבת פנייה</label>
+                                    <select id="complaint_type" class="form-select form-control-lg"
+                                        aria-label="Default select example" name="complaint_type">
+                                        <option value="not_arrived">לא הגיע</option>
+                                        <option value="faulty">תקול</option>
+                                        <option value="other">אחר</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="form-group col-md-12">
+                                    <label for="customer_text" class="col-form-label"> תוכן פנייה:</label>
+                                    <input type="text" dir="rtl" class="form-control" name="customer-text"
+                                        id="customer-text">
+                                </div>
+                            </div>
+                            <div class="row" dir="rtl">
+                                <div class="col-md-4 md-offset-4">
+                                    <button type="submit" id="submit-complaint" class="btn btn-success float-right">
+                                        עדכן פנייה</button>
+                                </div>
+                            </div>
+
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</body>
+<script src="https://unpkg.com/jquery/dist/jquery.min.js"></script>
+<script src="https://unpkg.com/gridjs-jquery/dist/gridjs.production.min.js"></script>
+<link rel="stylesheet" type="text/css" href="https://unpkg.com/gridjs/dist/theme/mermaid.min.css" />
+
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script>
+    var all_complaints;
+
+    function close_complaint(event) {
+        $.ajax({
+            url: `/customerService/${event.target.attributes.complaint_id.value}`, method: 'DELETE', success: function (data) {
+                fill_table();
+            }
+        });
+        event.preventDefault();
+    }
+
+    function fill_table() {
+        $.ajax({
+            url: '/customerService', method: 'GET', success: function (data) {
+                $('tbody').empty();
+                all_complaints = data;
+                generate_complaint_list(data);
+            }
+        })
+    }
+
+    function find_complaint(by_id) {
+        for (i = 0; i < all_complaints.length; i++) {
+            if (all_complaints[i].ticket_id == by_id) {
+                return all_complaints[i];
+            }
+        }
+    }
+
+    function open_modal(event) {
+        event.preventDefault();
+        let ticket_id = this.attributes.complaint_id.value;
+        let complaint = find_complaint(ticket_id);
+        $('#customer-name').val(complaint.customer_name);
+        $('#customer-address').val(complaint.customer_address);
+        $('#customer-order-number').val(complaint.sale_id);
+        $('#complaint-type').val(complaint.complaint_type);
+        $('#customer-text').val(complaint.details);
+        $('#complaintModal').modal('show');
+        $('#submit-complaint').attr('complaint_id', complaint.ticket_id);
+        $('form.hidden').val(complaint.customer_id);
+        $('#complaintForm').attr('complaint_id', complaint.ticket_id);
+        $('#complaintForm').submit(update_complaint);
+    }
+
+    function update_complaint(event) {
+        $.ajax({
+            url: `/customerService/${event.target.attributes.complaint_id.value}`,
+            method: 'POST',
+            data: $('form#complaintForm').serialize(),
+            success: function (data) {
+                fill_table();
+            }
+        });
+        event.preventDefault();
+    }
+
+    function generate_complaint_list(data) {
+        var tickets = [];
+        for (i = 0; i < data.length; i++) {
+            let complaint = data[i];
+            let complaint_row = $(`<tr complaint_id=${complaint.ticket_id} class="ticket">
+                    <th scope="row"> ${complaint.customer_name}</th>
+                    <td> ${complaint.created_date} </td>
+                    <td> ${complaint.details} </td>
+                    <td> 
+                        <div class="btn-group">
+                        <button id="status-button" complaint-id=${complaint.ticket_id} type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            ${complaint.status}
+                        </button>
+                        <div class="dropdown-menu">
+                            <a class="dropdown-item" href="#">חדש</a>
+                            <a class="dropdown-item" href="#">בטיפול</a>
+                            <a class="dropdown-item" href="#">תקוע</a>
+                        </div>
+                        </div>
+                    </td>
+                    <td> ${complaint.complaint_type} </td>
+                    <td> <button type="button"  complaint_id=${complaint.ticket_id} class="btn btn-danger delete-complaint">סגור פנייה </button> </td>
+                    
+                </tr`);
+            tickets.push(complaint_row);
+        }
+
+        for (i = 0; i < tickets.length; i++) {
+            $('tbody').append(tickets[i]);
+        }
+
+        $('tr.ticket').click(open_modal);
+        $('button.delete-complaint').click(close_complaint);
+        $('#status-button').click(function () { $('.dropdown-toggle').dropdown() })
+
+    } $(document).ready(function () {
+        fill_table();
+    });
+</script>

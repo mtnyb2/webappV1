@@ -1,21 +1,10 @@
 import contextlib
+import datetime
 from flask import Flask, redirect, url_for, render_template, request, jsonify
 import sqlite3
 
-app = Flask(__name__) #__name__ השם של קובץ ההרצה
 
-# @app.route('/') #זה המסלול לדף הבית שאני רוצה לפתוח באינטרנט
-# def first():
-#     return 'Hello, yeso meeeee'
-
-
-# @app.route('/home') #זה המסלול לדף הבית שאני רוצה לפתוח באינטרנט
-# def home():
-#     return render_template('index.html') ##פקודה שאומרת לפתוח את הדף אינדקס
-
-# @app.route('/sign-in')
-# def sign_in():
-#     return render_template('sign-in.html')
+app = Flask(__name__) 
 
 
 @contextlib.contextmanager
@@ -25,77 +14,6 @@ def _get_cursor():
     conn.commit()
     conn.close()
 
-
-
-
-
-# #WORKER args
-# @contextlib.contextmanager
-# def _get_cursor():
-#     conn = sqlite3.connect('Manual Database.db') 
-#     yield conn.cursor()
-#     conn.commit()
-#     conn.close()
-
-
-# @app.route("/'worker'", methods=['GET', 'POST'])
-# def get_customers():
-#     with _get_cursor() as cursor:
-#         if request.method == 'GET':
-#             args = request.args
-#             if not args:
-#                 all_customers_result = cursor.execute("SELECT * FROM 'Customers'")
-#                 customers = []
-#                 for id, name, fname, city, address, phone_num, email, gender, department, role, cared_by, emergency_contact_name, emergency_contact_phone in all_customers_result.fetchall():
-#                     customers.append({
-#                         "id": id,
-#                         "name": name,
-#                         "fname": fname,
-#                         "city": city,
-#                         "address": address,
-#                         "phone_num": phone_num,
-#                         "email": email,
-#                         "gender": gender,
-#                         "department": department,
-#                         "role": role,
-#                         "cared_by": cared_by,
-#                         "emergency_contact_name": emergency_contact_name,
-#                         "emergency_contact_phone": emergency_contact_phone
-#                     })
-#             else:
-#                 query_parts = []
-#                 values = []
-#                 for key in args.keys():
-#                     if key in ['gender', 'department', 'role', 'cared_by']:
-#                         query_parts.append(f"{key} = ?")
-#                         values.append(args[key])
-#                 query_string = " AND ".join(query_parts)
-#                 sql_query = f"SELECT * FROM Customers"
-#                 if query_parts:
-#                     sql_query += f" WHERE {query_string}"
-#                 cursor.execute(sql_query, values)
-#                 customers = cursor.fetchall()
-#                 return customers
-#         else:
-#             id = request.form.get('id')
-#             name = request.form.get('name')
-#             fname = request.form.get('fname')
-#             city = request.form.get('city')
-#             address = request.form.get('address')
-#             phone_num = request.form.get('phone_num')
-#             email = request.form.get('email')
-#             gender = request.form.get('gender')
-#             department = request.form.get('department')
-#             role = request.form.get('role')
-#             cared_by = request.form.get('cared_by')
-#             emergency_contact_name = request.form.get('emergency_contact_name')
-#             emergency_contact_phone = request.form.get('emergency_contact_phone')
-#             try:
-#                 cursor.execute('INSERT INTO "worker" (id, name, fname, city, address, phone_num, email, gender, department, role, cared_by, emergency_contact_name, emergency_contact_phone) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', (id, name, fname, city, address, phone_num, email, gender, department, role, cared_by, emergency_contact_name, emergency_contact_phone))
-#                 return "INSERTED"
-#             except Exception as e:
-#                 print(f"Failed to insert worker {name} {fname} with id {id}")
-#                 return "Failed to insert", 400
 
 @app.route("/worker/<id>", methods=['GET', 'POST'])
 def get_worker_details(id: str):
@@ -154,192 +72,41 @@ def get_worker_details(id: str):
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-# @app.route("/worker", methods=['GET', 'POST'])
-# def get_workers():
-#     with _get_cursor() as cursor:
-#         if request.method == 'GET':
-#             all_workers_result = cursor.execute("select national_id_number, first_name, last_name from 'Worker'")
-#             workers = []
-#             for national_id_number, first_name, last_name in all_workers_result.fetchall():
-#                 workers.append({
-#                     "id": national_id_number,
-#                     "first_name": first_name,
-#                     "last_name": last_name
-#                 })
-#             return workers
-#         else:
-#             first_name = request.form.get('first_name')
-#             last_name = request.form.get('last_name')
-#             national_id_number = request.form.get('national_id_number')
-#             try:
-#                 cursor.execute('INSERT INTO "Worker"  (first_name, last_name, national_id_number) VALUES (?, ?, ?)', (first_name, last_name, national_id_number))
-#                 return "INSERTED"
-#             except Exception as e:
-#                 print(f"Failed to insert worker {first_name} {last_name} with id {national_id_number}")
-#                 return "Failed to insert", 400
-
-# @app.route("/worker/<worker_national_id>", methods=['GET', 'POST'])
-# def get_worker_details(worker_national_id: str):
-#     with _get_cursor() as cursor:
-#         if request.method == 'GET':
-#             worker_result = cursor.execute('SELECT * FROM Worker WHERE national_id_number=?', (worker_national_id,)).fetchone()
-#             worker_national_id, first_name, last_name = worker_result
-#             worker_details = ({
-#                 "id": worker_national_id,
-#                 "first_name": first_name,
-#                 "last_name": last_name
-#             })
-#             return worker_details
-#         else:
-#             first_name = request.form.get('first_name')
-#             last_name = request.form.get('last_name')
-#             try:
-#                 cursor.execute("""UPDATE Worker SET
-#                                first_name = ?,
-#                                last_name = ?
-#                                WHERE national_id_number=?""",
-#                                (first_name, last_name, worker_national_id))
-#                 return "Worker updated"
-#             except Exception as e:
-#                 print(f"Failed to update worker with id = {national_id_number}")
-#                 return "Failed to insert", 400
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# #Customers args not GPT
-# @contextlib.contextmanager
-# def _get_cursor():
-#     conn = sqlite3.connect('Manual Database.db') 
-#     yield conn.cursor()
-#     conn.commit()
-#     conn.close()
-
-
-# @app.route("/customers", methods=['GET', 'POST'])
-# def get_customers():
-#     with _get_cursor() as cursor:
-#         if request.method == 'GET':
-#             args = request.args
-#             if not args:
-#                 all_customers_result = cursor.execute("SELECT * FROM 'Customers'")
-#                 customers = []
-#                 for id, name, phone_number, email, address, age in all_customers_result.fetchall():
-#                     customers.append({
-#                         "id": id,
-#                         "name": name,
-#                         "phone_number": phone_number,
-#                         "email": email,
-#                         "address": address,
-#                         "age": age
-#                     })
-#             else:
-#                 query_parts = []
-#                 values = []
-#                 for key in args.keys():
-#                     if key in ['name', 'phone_number', 'email', 'address', 'age']:
-#                         query_parts.append(f"{key} = ?")
-#                         values.append(args[key])
-#                 query_string = " AND ".join(query_parts)
-#                 sql_query = f"SELECT * FROM Customers"
-#                 if query_parts:
-#                     sql_query += f" WHERE {query_string}"
-#                 cursor.execute(sql_query, values)
-#                 customers = cursor.fetchall()
-#                 return customers
-#         else:
-#             id = request.form.get('id')
-#             name = request.form.get('name')
-#             phone_number = request.form.get('phone_number')
-#             email = request.form.get('email')
-#             address = request.form.get('address')
-#             age = request.form.get('age')
-#             try:
-#                 cursor.execute('INSERT INTO "Customers" (id, name, phone_number, email, address, age) VALUES (?, ?, ?, ?, ?, ?)', (id, name, phone_number, email, address, age))
-#                 return "INSERTED"
-#             except Exception as e:
-#                 print(f"Failed to insert worker {name} with id {id}")
-#                 return "Failed to insert", 400
-
-# @app.route("/customers/<id>", methods=['GET', 'POST'])
-# def get_customer_details(id: str):
-#     with _get_cursor() as cursor:
-#         if request.method == 'GET':
-#             customer_result = cursor.execute('SELECT * FROM Customers WHERE id=?', (id,)).fetchone()
-#             id, name, phone_number, email, address, age = customer_result
-#             customer_details = ({
-#                 "id": id,
-#                 "first_name": name,
-#                 "phone_number": phone_number,
-#                 "email": email,
-#                 "address": address,
-#                 "age": age
-#             })
-#             return customer_details
-#         else:
-#             id = request.form.get('id')
-#             name = request.form.get('name')
-#             phone_number = request.form.get('phone')
-#             email = request.form.get('email')
-#             address = request.form.get('address')
-#             age = request.form.get('age')
-#             try:
-#                 cursor.execute("""UPDATE Customers SET
-#                                name = ?,
-#                                phone_number = ?,
-#                                email = ?,
-#                                address = ?,
-#                                age = ?
-#                                WHERE id = ?""",
-#                                (name, phone_number, email, address, age, id))
-#                 return "Customer updated"
-#             except Exception as e:
-#                 print(f"Failed to update customer with id = {id}")
-#                 return "Failed to insert", 400
-
-
-#GPT:
-from flask import Flask, request, jsonify, render_template
-import sqlite3
-import contextlib
-
 app = Flask(__name__)
 
-# Customers args
 @contextlib.contextmanager
 def _get_cursor():
     conn = sqlite3.connect('Manual Database.db')
     yield conn.cursor()
     conn.commit()
     conn.close()
+
+
+def _get_all_sales_for_customer(curosr, customer_id: int):
+    
+    statement = """SELECT sale.id, sale.sale_timestamp, sale.status, item.manufacturer_name, item.price, item.id
+      from 'OnlineSelling' sale join 'SaleToItem' sale_to_item on sale_to_item.sale_id = sale.id 
+      join 'MarketingItems' item on item.id = sale_to_item.item_id
+      where sale.customer_id = ?;"""
+    all_items_and_sales = curosr.execute(statement, (customer_id,)).fetchall()
+    
+    sales = {}
+    for row in all_items_and_sales:
+        sale_id, timestamp, status, manufacturer_name, price, item_id = row
+        if sale_id in sales.keys():
+            sales[sale_id]['items_sold'].append({"manufacturer_name": manufacturer_name,
+                                                "price": price,
+                                                "item_id": item_id})
+        else:
+            sales[sale_id] = {'timestamp': timestamp, 'id': sale_id, 'status': status, 'items_sold': [
+                {"manufacturer_name": manufacturer_name,
+                                                "price": price,
+                                                'item_id': item_id}
+            ]}
+    
+    return [sale for sale in sales.values()]
+    
+
 
 @app.route("/customers", methods=['GET', 'POST'])
 def get_customers():
@@ -355,6 +122,8 @@ def get_customers():
                     the_query = "SELECT * FROM 'Customers' customer where customer.name || customer.phone_number || customer.email || customer.address || customer.age like (?)"
                     all_customers_result = cursor.execute(the_query, (f"%{args['search']}%",))
                     customers = [dict(id=row[0], name=row[1], phone_number=row[2], email=row[3], address=row[4], age=row[5]) for row in all_customers_result.fetchall()]
+                    for customer in customers:
+                        customer['sales'] = _get_all_sales_for_customer(cursor, customer['id'])
                     return customers
                 else:
                     query_parts = []
@@ -381,9 +150,6 @@ def get_customers():
                 return jsonify({"success": False, "message": "Failed to insert customer"}), 400
 
 
-
-
-##Customer_Service
 @contextlib.contextmanager
 def _get_cursor():
     conn = sqlite3.connect('Manual Database.db') 
@@ -396,36 +162,55 @@ def _get_cursor():
 def get_customers_tickets():
     with _get_cursor() as cursor:
         if request.method == 'GET':
-            all_customers_tickets_result = cursor.execute("SELECT * FROM 'CustomerService'")
+            statement = """SELECT customer.name,
+              customer.address,
+                complaint.sale_id,
+                  complaint.id,
+                   customer.id,
+                    complaint.details,
+                      complaint.type,
+                        complaint.created_date,
+                          complaint.last_updated,
+                            complaint.status FROM 'CustomerService' complaint join 'Customers' customer on customer.id = complaint.customer_id"""
+            arguments = [statement]
+            if 'search' in request.args:
+                statement += "where customer.name || customer.address || complaint.details || complaint.type || complaint.status like (?)"
+                arguments.append((f"%{request.args['search']}%",))
+            
+            
+            all_customers_tickets_result = cursor.execute(*arguments)
             customers_tickets = []
-            for ticket_id, sale_id, details, resolved_by, worker_id, timestamp, status in all_customers_tickets_result.fetchall():
+            for customer_name, customer_address, sale_id, ticket_id, customer_id, details, \
+                  complaint_type, created_date, last_updated, status in all_customers_tickets_result.fetchall():
                 customers_tickets.append({
                     "ticket_id": ticket_id,
                     "sale_id": sale_id,
                     "details": details,
-                    "resolved_by": resolved_by,
-                    "worker_id": worker_id,
-                    "timestamp": timestamp,
+                    "customer_id": customer_id,
+                    "customer_name": customer_name,
+                    "customer_address": customer_address,
+                    "complaint_type": complaint_type,
+                    "last_updated": last_updated,
+                    "created_date": created_date,
                     "status": status
                 })
             return customers_tickets
         else:
-            ticket_id = request.form.get('ticket_id')
+            customer_id = request.form.get('customer_id')
             sale_id = request.form.get('sale_id')
-            details = request.form.get('details')
-            resolved_by = request.form.get('resolved_by')
-            worker_id = request.form.get('worker_id')
-            timestamp = request.form.get('timestamp')
-            status = request.form.get('status')
+            details = request.form.get('customer_text')
+            timestamp = datetime.datetime.now()
+            compaint_type = request.form.get('complaint_type')
+            status = "חדש"
             try:
-                cursor.execute('INSERT INTO "CustomerService" (ticket_id, sale_id, details, resolved_by, worker_id, timestamp, status) VALUES (?, ?, ?, ?, ?, ?, ?)', (ticket_id, sale_id, details, resolved_by, worker_id, timestamp, status))
+                cursor.execute('INSERT INTO "CustomerService" (customer_id, sale_id, details, created_date, status, last_updated, type) VALUES (?, ?, ?, ?, ?, ?, ?)', (customer_id, sale_id, details, timestamp, status, timestamp, compaint_type))
                 return "INSERTED"
             except Exception as e:
                 print(f"Failed to open new ticket for sale number {sale_id}")
                 return "Failed to insert", 400
 
 
-@app.route("/customerService/<ticket_id>", methods=['GET', 'POST'])
+@app.route("/customerService/<ticket_id>", methods=['GET', 'POST', 'DELETE'])
 def get_customer_tickets(ticket_id: str):
     with _get_cursor() as cursor:
         if request.method == 'GET':
@@ -441,49 +226,27 @@ def get_customer_tickets(ticket_id: str):
                 "status": status
             })
             return customer_details
-        else:
-            details = request.form.get('details')
-            resolved_by = request.form.get('resolved_by')
-            worker_id = request.form.get('worker_id')
-            status = request.form.get('status')
+        elif request.method == 'POST':
+            details = request.form.get('customer-text')
+            timestamp = datetime.datetime.now()
+            compaint_type = request.form.get('complaint_type')
             try:
                 cursor.execute("""UPDATE CustomerService SET
                                details = ?,
-                               resolved_by = ?,
-                               worker_id = ?,
-                               status = ? """,
-                               (details, resolved_by, worker_id, status))
+                               last_updated = ?,
+                               type = ? where id = ?""",
+                               (details, timestamp, compaint_type, ticket_id))
                 return "Ticket is updated"
             except Exception as e:
-                print(f"Failed to update ticked with id = {ticket_id}")
+                print(f"Failed to update ticked with id = {ticket_id}. Error {e}")
                 return "Failed to insert", 400
+        else:
+            statment = """DELETE FROM 'CustomerService' where id = ?"""
+            cursor.execute(statment, (ticket_id,))
+            return "OK", 200
+            
 
 
-
-
-
-
-
-
-
-
-
-
-# @app.route("")
-
-# @app.route('/manager-view') 
-# def manager_view():
-#     return render_template('manager-view.html')
-
-# @app.route('/customer-service-view')
-# def customer_service_view():
-#     return render_template('customer-service-view.html')
-
-# @app.route('/worker_ticket')
-# def worker_tickets():
-#     return render_template('my-ticket.html')
-
-# the below is called endpoint --- 
 @app.route('/new-ticket')
 def new_ticket():
     return render_template('add_ticket.html')
@@ -492,6 +255,9 @@ def new_ticket():
 def customer_search():
     return render_template('customer_search.html')
 
+@app.route('/customer-service')
+def customer_service():
+    return render_template('customer_service.html')
 
 
 
@@ -531,9 +297,23 @@ if __name__ == '__main__':
 #http://127.0.0.1:5002/customers
 
 
+# @app.route("/Customers-Tickets,<sale_id><customer_id>", methods=['GET'])
+# def get_customers_tickets():
+#     with _get_cursor() as cursor:
+#             all_customers_tickets_result = cursor.execute("INSERT INTO 'CustomerService' (ticket_id, sale_id, details, resolves_by, worker_id, timestamp, status) VALUES (?, ?, ?, ?, ?, ?, ?)")
+#             customers_tickets = []
+#             for ticket_id, sale_id, details, resolves_by, worker_id, timestamp, status in new_ticket.fetchall():
+#                 customers_tickets.append({
+#                     "ticket_id": ticket_id,
+#                     "sale_id": sale_id,
+#                     "details": details,
+#                     "resolved_by": resolved_by,
+#                     "worker_id": worker_id,
+#                     "timestamp": timestamp,
+#                     "status": status
+#                 })
+#             return customers_tickets
 
-
-from flask import Flask, jsonify
 
 app = Flask(__name__)
 
